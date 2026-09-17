@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paristerasse — Médiathèque visuelle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg: 'var(--bg)', surface: 'var(--surface)', surface2: 'var(--surface-2)',
+          line: 'var(--border)', ink: 'var(--text)', muted: 'var(--muted)',
+          accent: 'var(--accent)', accentSoft: 'var(--accent-soft)'
+        },
+        fontFamily: { sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Helvetica Neue', 'Arial', 'sans-serif'] },
+        boxShadow: { soft: '0 1px 2px rgba(16,18,15,.05), 0 10px 30px rgba(16,18,15,.07)' }
+      }
+    }
+  }
+</script>
+<style>
+  :root{
+    --bg:#f5f2ee; --surface:#ffffff; --surface-2:#f0ece6; --border:#e4ddd3;
+    --text:#1d1b18; --muted:#706962; --accent:#2d5a46; --accent-soft:#e8efe9;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#171513; --surface:#201d1a; --surface-2:#2b2724; --border:#3b352f;
+      --text:#f2eee8; --muted:#aca196; --accent:#8cbc9a; --accent-soft:#1d3129;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#171513; --surface:#201d1a; --surface-2:#2b2724; --border:#3b352f;
+    --text:#f2eee8; --muted:#aca196; --accent:#8cbc9a; --accent-soft:#1d3129;
+  }
+  body{ background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; }
+  *{ -webkit-tap-highlight-color: transparent; }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb{ background:var(--border); border-radius:99px; border:3px solid var(--bg); }
+  .thumb svg{ display:block; width:100%; height:100%; }
+  .fade-in{ animation: fade .28s ease both; }
+  @keyframes fade{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:none;} }
+  .card:hover .thumb svg{ transform:scale(1.04); }
+  .thumb svg{ transition: transform .45s cubic-bezier(.2,.7,.3,1); }
+  input[type=text], input[type=email], input[type=password], select{ color:var(--text); }
+  select option{ color:#111; }
+  :root[data-theme="dark"] select option{ color:#eee; background:#1f221f; }
+</style>
+</head>
+<body class="font-sans antialiased">
+
+<!-- ============ AUTH ============ -->
+<div id="auth" class="fixed inset-0 z-50 flex items-center justify-center bg-bg px-4">
+  <div class="absolute inset-0 pointer-events-none opacity-[0.55]"
+       style="background:radial-gradient(60% 50% at 20% 10%, var(--accent-soft), transparent 70%), radial-gradient(50% 40% at 85% 85%, var(--accent-soft), transparent 70%)"></div>
+
+  <div class="relative w-full max-w-[420px] fade-in">
+    <div class="flex items-center gap-3 mb-8">
+      <div class="h-11 w-11 rounded-xl bg-accent text-white grid place-items-center font-bold text-lg tracking-tight">S3</div>
+      <div>
+        <div class="font-semibold leading-tight">Paristerasse</div>
+        <div class="text-xs text-muted leading-tight">Médiathèque visuelle</div>
+      </div>
+    </div>
+
+    <div class="bg-surface border border-line rounded-2xl p-6 shadow-soft">
+      <h1 class="text-xl font-semibold tracking-tight">Bonjour tout le monde</h1>
+      <p class="text-sm text-muted mt-1">Accédez à la banque de visuels Paristerasse.</p>
+      <p class="text-[11px] text-muted mt-3">Maquette réalisée par Yastene Aissat</p>
+
+      <div class="mt-6 space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-muted mb-1.5">E-mail professionnel</label>
+          <input id="authMail" type="email" value="cecile@paristerasse.fr"
+                 class="w-full bg-surface2 border border-line rounded-lg px-3 py-2.5 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted mb-1.5">Mot de passe</label>
+          <input id="authPwd" type="password" value="••••••••••"
+                 class="w-full bg-surface2 border border-line rounded-lg px-3 py-2.5 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20">
+        </div>
+        <div class="flex items-center justify-between text-xs">
+          <label class="flex items-center gap-2 text-muted cursor-pointer">
+            <input type="checkbox" checked class="accent-[var(--accent)] h-3.5 w-3.5"> Rester connecté
+          </label>
+          <a href="#" class="text-accent hover:underline">Mot de passe oublié ?</a>
+        </div>
+        <button onclick="login('admin')"
+                class="w-full bg-accent text-white rounded-lg py-2.5 text-sm font-medium hover:opacity-90 transition">
+          Se connecter
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 my-6">
+        <div class="h-px flex-1 bg-line"></div>
+        <span class="text-[11px] uppercase tracking-wider text-muted">Accès démo</span>
+        <div class="h-px flex-1 bg-line"></div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="login('lecteur')" class="group text-left border border-line rounded-xl p-3 hover:border-accent hover:bg-accentSoft/60 transition">
+          <div class="h-8 w-8 rounded-full bg-surface2 border border-line grid place-items-center text-[11px] font-semibold mb-2">CR</div>
+          <div class="text-sm font-medium">Graphiste</div>
+          <div class="text-[11px] text-muted">Lecture seule</div>
+        </button>
+        <button onclick="login('admin')" class="group text-left border border-line rounded-xl p-3 hover:border-accent hover:bg-accentSoft/60 transition">
+          <div class="h-8 w-8 rounded-full bg-accent text-white grid place-items-center text-[11px] font-semibold mb-2">AL</div>
+          <div class="text-sm font-medium">Admin</div>
+          <div class="text-[11px] text-muted">Contributeur</div>
+        </button>
+      </div>
+    </div>
+    <p class="text-center text-[11px] text-muted mt-6">Maquette de démonstration — aucune donnée réelle.</p>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" class="hidden min-h-screen flex-col">
+
+  <!-- Topbar -->
+  <header class="sticky top-0 z-30 bg-surface/90 backdrop-blur border-b border-line">
+    <div class="h-16 px-4 lg:px-6 flex items-center gap-3 lg:gap-5">
+      <div class="flex items-center gap-2.5 shrink-0">
+        <div class="h-9 w-9 rounded-lg bg-accent text-white grid place-items-center font-bold text-sm">S3</div>
+        <div class="hidden sm:block leading-tight">
+          <div class="text-sm font-semibold">Paristerasse</div>
+          <div class="text-[11px] text-muted">Médiathèque</div>
+        </div>
+      </div>
+
+      <div class="flex-1 max-w-2xl mx-auto relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="search" type="text" placeholder="Rechercher un titre, un mot-clé, une plante, un meuble…"
+               class="w-full bg-surface2 border border-line rounded-full pl-9 pr-9 py-2.5 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 placeholder:text-muted">
+        <button id="clearSearch" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <button onclick="toggleTheme()" title="Thème clair / sombre"
+                class="h-9 w-9 grid place-items-center rounded-lg border border-line hover:bg-surface2 transition">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+        </button>
+
+        <button id="importBtn" onclick="openImport()"
+                class="hidden sm:inline-flex items-center gap-2 bg-accent text-white rounded-lg px-3.5 py-2 text-sm font-medium hover:opacity-90 transition">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0 4 4m-4-4L8 8"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          Importer des photos
+        </button>
+
+        <div class="h-8 w-px bg-line mx-1 hidden sm:block"></div>
+
+        <button class="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-lg hover:bg-surface2 transition">
+          <div id="avatar" class="h-8 w-8 rounded-full bg-accent text-white grid place-items-center text-[11px] font-semibold">AL</div>
+          <div class="hidden md:block text-left leading-tight">
+            <div id="userName" class="text-[13px] font-medium">cecile</div>
+            <div id="userRole" class="text-[10px] font-medium text-accent">Admin · Contributeur</div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex-1 flex">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="hidden lg:flex flex-col w-[264px] shrink-0 border-r border-line bg-surface sticky top-16 self-start h-[calc(100vh-4rem)] overflow-y-auto">
+      <div class="p-5 space-y-7">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-[11px] font-semibold uppercase tracking-wider text-muted">Type de visuel</h2>
+            <span id="catCount" class="text-[11px] text-muted"></span>
+          </div>
+          <div id="catFilters" class="space-y-1.5"></div>
+        </div>
+
+        <div>
+          <h2 class="text-[11px] font-semibold uppercase tracking-wider text-muted mb-3">Environnement</h2>
+          <div class="grid grid-cols-3 gap-1 bg-surface2 p-1 rounded-lg border border-line">
+            <button data-env="all" onclick="setEnv('all')" class="env-btn text-xs py-1.5 rounded-md font-medium">Tous</button>
+            <button data-env="Intérieur" onclick="setEnv('Intérieur')" class="env-btn text-xs py-1.5 rounded-md font-medium">Intérieur</button>
+            <button data-env="Extérieur" onclick="setEnv('Extérieur')" class="env-btn text-xs py-1.5 rounded-md font-medium">Extérieur</button>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="text-[11px] font-semibold uppercase tracking-wider text-muted mb-3">Mots-clés fréquents</h2>
+          <div id="tagCloud" class="flex flex-wrap gap-1.5"></div>
+        </div>
+
+        <button onclick="resetFilters()"
+                class="w-full flex items-center justify-center gap-2 border border-line rounded-lg py-2 text-xs font-medium text-muted hover:text-ink hover:border-ink/25 transition">
+          <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+          Réinitialiser les filtres
+        </button>
+      </div>
+    </aside>
+
+    <!-- Galerie -->
+    <main class="flex-1 min-w-0 p-4 lg:p-7">
+      <div class="flex flex-wrap items-end justify-between gap-3 mb-5">
+        <div>
+          <h1 class="text-[22px] font-semibold tracking-tight">Bibliothèque visuelle Paristerasse</h1>
+          <p id="resultInfo" class="text-sm text-muted mt-0.5"></p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="toggleMobileFilters()" class="lg:hidden inline-flex items-center gap-2 border border-line rounded-lg px-3 py-2 text-xs font-medium">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h18M6 12h12M10 19h4"/></svg>
+            Filtres
+          </button>
+          <select id="sort" onchange="render()" class="bg-surface border border-line rounded-lg px-3 py-2 text-xs font-medium outline-none focus:border-accent">
+            <option value="recent">Plus récents</option>
+            <option value="old">Plus anciens</option>
+            <option value="az">Titre A → Z</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="activeChips" class="flex flex-wrap gap-2 mb-5"></div>
+
+      <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4"></div>
+
+      <div id="empty" class="hidden text-center py-24">
+        <div class="mx-auto h-12 w-12 rounded-full bg-surface2 border border-line grid place-items-center mb-4">
+          <svg class="h-5 w-5 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        </div>
+        <p class="font-medium">Aucun visuel ne correspond</p>
+        <p class="text-sm text-muted mt-1">Essayez d'élargir vos critères ou de réinitialiser les filtres.</p>
+        <button onclick="resetFilters()" class="mt-4 text-sm text-accent font-medium hover:underline">Réinitialiser</button>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============ DRAWER DÉTAIL ============ -->
+<div id="drawerWrap" class="hidden fixed inset-0 z-40">
+  <div onclick="closeDrawer()" class="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
+  <aside id="drawer" class="absolute right-0 top-0 h-full w-full sm:w-[480px] bg-surface border-l border-line shadow-soft overflow-y-auto translate-x-full transition-transform duration-300">
+    <div id="drawerContent"></div>
+  </aside>
+</div>
+
+<!-- ============ MODALE IMPORT ============ -->
+<div id="importWrap" class="hidden fixed inset-0 z-50 p-4 overflow-y-auto">
+  <div onclick="closeImport()" class="fixed inset-0 bg-black/45 backdrop-blur-[2px]"></div>
+  <div class="relative mx-auto my-6 w-full max-w-3xl bg-surface border border-line rounded-2xl shadow-soft fade-in">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-line">
+      <div>
+        <h2 class="font-semibold tracking-tight">Importer des photos</h2>
+        <p class="text-xs text-muted mt-0.5">Déposez vos fichiers, puis qualifiez-les en masse.</p>
+      </div>
+      <button onclick="closeImport()" class="h-8 w-8 grid place-items-center rounded-lg hover:bg-surface2 text-muted">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-5">
+      <div id="dropzone" class="border-2 border-dashed border-line rounded-xl px-6 py-9 text-center cursor-pointer hover:border-accent hover:bg-accentSoft/40 transition">
+        <div class="mx-auto h-11 w-11 rounded-full bg-surface2 border border-line grid place-items-center mb-3">
+          <svg class="h-5 w-5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0 4 4m-4-4L8 8"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        </div>
+        <p class="text-sm font-medium">Glissez-déposez vos visuels ici</p>
+        <p class="text-xs text-muted mt-1">JPG, PNG, TIFF — 40 Mo max par fichier · ou cliquez pour parcourir</p>
+      </div>
+
+      <div id="importEmpty" class="text-center text-xs text-muted py-2">Aucun fichier en attente.</div>
+
+      <div id="importPanel" class="hidden">
+        <div class="flex flex-wrap items-center gap-2 p-3 bg-surface2 border border-line rounded-lg mb-3">
+          <label class="flex items-center gap-2 text-xs font-medium mr-1">
+            <input type="checkbox" id="selectAll" onchange="toggleAll(this.checked)" class="accent-[var(--accent)] h-3.5 w-3.5">
+            <span id="selCount">0 sélectionné</span>
+          </label>
+          <div class="h-5 w-px bg-line"></div>
+          <span class="text-xs text-muted">Appliquer en masse :</span>
+          <select id="bulkCat" class="bg-surface border border-line rounded-md px-2 py-1.5 text-xs outline-none focus:border-accent"></select>
+          <select id="bulkEnv" class="bg-surface border border-line rounded-md px-2 py-1.5 text-xs outline-none focus:border-accent">
+            <option>Intérieur</option><option>Extérieur</option>
+          </select>
+          <button onclick="applyBulk()" class="text-xs font-medium bg-accent text-white rounded-md px-3 py-1.5 hover:opacity-90">Appliquer</button>
+        </div>
+
+        <div class="border border-line rounded-lg overflow-hidden">
+          <div class="max-h-[280px] overflow-y-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-surface2 text-[11px] uppercase tracking-wider text-muted">
+                <tr>
+                  <th class="w-10 py-2"></th>
+                  <th class="text-left font-semibold py-2">Fichier</th>
+                  <th class="text-left font-semibold py-2 hidden sm:table-cell">Type</th>
+                  <th class="text-left font-semibold py-2 hidden sm:table-cell">Env.</th>
+                  <th class="text-right font-semibold py-2 pr-3">Poids</th>
+                </tr>
+              </thead>
+              <tbody id="importRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-line">
+      <p id="importHint" class="text-xs text-muted">Les métadonnées peuvent être complétées après l'import.</p>
+      <div class="flex gap-2">
+        <button onclick="closeImport()" class="border border-line rounded-lg px-4 py-2 text-sm font-medium hover:bg-surface2">Annuler</button>
+        <button id="confirmImport" onclick="confirmImport()" disabled
+                class="bg-accent text-white rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-40 hover:opacity-90">Importer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toasts" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] flex flex-col items-center gap-2"></div>
+
+<script>
+/* ---------------- Thème ---------------- */
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('s3d-theme', next); } catch(e){}
+}
+try { const t = localStorage.getItem('s3d-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch(e){}
+
+/* ---------------- Catégories ---------------- */
+const CATS = {
+  vegetal:   { label:'Végétaux / Fleurs',      color:'#3f9a6d' },
+  mobilier:  { label:'Mobilier',                color:'#c07a3e' },
+  outillage: { label:'Outillage',               color:'#5a7fb8' },
+  materiaux: { label:'Matériaux / Revêtements', color:'#9a8464' },
+  deco:      { label:'Décoration',              color:'#8a6bc0' }
+};
+const TONES = {
+  vegetal:['#eaf4ee','#c3dfcd','#3f9a6d'],
+  mobilier:['#fbf1e7','#f0d8bd','#c07a3e'],
+  outillage:['#eceff7','#ccd8ea','#5a7fb8'],
+  materiaux:['#f4f1eb','#e0d7c8','#9a8464'],
+  deco:['#f3eefa','#ded1ee','#8a6bc0']
+};
+
+/* ---------------- Vignettes vectorielles ---------------- */
+let uid = 0;
+const M = {
+  tree:(c)=>`<path d="M196 230v-64" stroke="${c[2]}" stroke-width="7" stroke-linecap="round"/><circle cx="196" cy="128" r="46" fill="${c[2]}" opacity=".85"/><circle cx="158" cy="152" r="30" fill="${c[2]}" opacity=".6"/><circle cx="234" cy="150" r="26" fill="${c[2]}" opacity=".7"/><path d="M164 230h64l-10 46h-44z" fill="${c[2]}" opacity=".35"/>`,
+  shrub:(c)=>`<circle cx="200" cy="140" r="54" fill="${c[2]}" opacity=".75"/><path d="M200 194v40" stroke="${c[2]}" stroke-width="7"/><path d="M168 234h64l-8 42h-48z" fill="${c[2]}" opacity=".35"/>`,
+  leaf:(c)=>`<g stroke="${c[2]}" stroke-width="6" fill="none" stroke-linecap="round"><path d="M200 262V150"/><path d="M200 168c-40-10-64-40-64-78 44-4 70 26 78 60"/><path d="M204 190c40-14 62-44 58-82-44 0-68 32-72 66"/></g><ellipse cx="200" cy="272" rx="46" ry="12" fill="${c[2]}" opacity=".25"/>`,
+  flower:(c)=>`<g fill="${c[2]}"><circle cx="150" cy="120" r="26" opacity=".8"/><circle cx="210" cy="96" r="30" opacity=".65"/><circle cx="256" cy="134" r="22" opacity=".8"/></g><g stroke="${c[2]}" stroke-width="5" stroke-linecap="round"><path d="M150 146v100M210 126v120M256 156v90"/></g>`,
+  spike:(c)=>`<g stroke="${c[2]}" stroke-width="6" stroke-linecap="round"><path d="M160 250V118M200 258V96M240 250V126"/></g><g fill="${c[2]}" opacity=".75"><ellipse cx="160" cy="112" rx="9" ry="22"/><ellipse cx="200" cy="90" rx="10" ry="26"/><ellipse cx="240" cy="120" rx="9" ry="22"/></g><rect x="136" y="248" width="128" height="34" rx="6" fill="${c[2]}" opacity=".3"/>`,
+  sofa:(c)=>`<rect x="88" y="150" width="224" height="80" rx="18" fill="${c[2]}" opacity=".8"/><rect x="104" y="120" width="192" height="50" rx="14" fill="${c[2]}" opacity=".5"/><g stroke="${c[2]}" stroke-width="8" stroke-linecap="round"><path d="M116 230v26M284 230v26"/></g>`,
+  chair:(c)=>`<path d="M140 190c0-46 26-74 60-74s60 28 60 74" fill="none" stroke="${c[2]}" stroke-width="10" stroke-linecap="round"/><rect x="132" y="186" width="136" height="26" rx="12" fill="${c[2]}" opacity=".8"/><g stroke="${c[2]}" stroke-width="8" stroke-linecap="round"><path d="M150 212l-14 54M250 212l14 54"/></g>`,
+  table:(c)=>`<ellipse cx="200" cy="146" rx="102" ry="30" fill="${c[2]}" opacity=".8"/><g stroke="${c[2]}" stroke-width="9" stroke-linecap="round"><path d="M132 158l-14 92M268 158l14 92M200 170v82"/></g>`,
+  shelf:(c)=>`<g stroke="${c[2]}" stroke-width="8" stroke-linecap="round"><path d="M120 90v190M280 90v190M120 150h160M120 210h160M120 268h160"/></g>`,
+  hedger:(c)=>`<rect x="110" y="150" width="96" height="46" rx="14" fill="${c[2]}" opacity=".8"/><path d="M206 162h110M206 184h110" stroke="${c[2]}" stroke-width="9" stroke-linecap="round"/><path d="M126 196v34" stroke="${c[2]}" stroke-width="10" stroke-linecap="round"/>`,
+  shear:(c)=>`<g stroke="${c[2]}" stroke-width="10" stroke-linecap="round" fill="none"><path d="M128 100l120 120M272 100L152 220"/><circle cx="140" cy="244" r="20"/><circle cx="260" cy="244" r="20"/></g>`,
+  mower:(c)=>`<path d="M104 200h192a16 16 0 0 1 16 16v20H88v-20a16 16 0 0 1 16-16Z" fill="${c[2]}" opacity=".8"/><path d="M132 200c0-34 28-56 68-56s68 22 68 56" fill="${c[2]}" opacity=".45"/><g fill="${c[2]}"><circle cx="132" cy="248" r="18"/><circle cx="268" cy="248" r="18"/></g>`,
+  can:(c)=>`<path d="M140 150h108v100a14 14 0 0 1-14 14h-80a14 14 0 0 1-14-14Z" fill="${c[2]}" opacity=".8"/><path d="M248 172l64-34-6 96" stroke="${c[2]}" stroke-width="10" fill="none" stroke-linecap="round"/><path d="M152 150c0-30 60-30 60 0" stroke="${c[2]}" stroke-width="9" fill="none"/>`,
+  tile:(c)=>`<g fill="${c[2]}" opacity=".62">${[0,1,2,3].map(y=>[0,1,2,3].map(x=>`<rect x="${92+x*56}" y="${88+y*46}" width="48" height="38" rx="4"/>`).join('')).join('')}</g>`,
+  plank:(c)=>`<g fill="${c[2]}" opacity=".6">${[0,1,2,3,4].map(i=>`<rect x="70" y="${86+i*38}" width="260" height="28" rx="6"/>`).join('')}</g><g stroke="${c[0]}" stroke-width="3" opacity=".8"><path d="M170 86v152M250 124v152"/></g>`,
+  gravel:(c)=>{let s='';for(let i=0;i<46;i++){const x=80+Math.random()*240,y=90+Math.random()*180,r=5+Math.random()*10;s+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${r.toFixed(0)}" fill="${c[2]}" opacity="${(0.25+Math.random()*0.45).toFixed(2)}"/>`;}return s;},
+  blotch:(c)=>`<g fill="${c[2]}"><ellipse cx="160" cy="150" rx="86" ry="60" opacity=".35"/><ellipse cx="250" cy="210" rx="96" ry="62" opacity=".28"/><ellipse cx="220" cy="130" rx="60" ry="42" opacity=".22"/></g>`,
+  lamp:(c)=>`<path d="M200 60v46" stroke="${c[2]}" stroke-width="6"/><path d="M146 196l32-88h44l32 88Z" fill="${c[2]}" opacity=".8"/><ellipse cx="200" cy="228" rx="52" ry="14" fill="${c[2]}" opacity=".28"/>`,
+  rug:(c)=>`<rect x="82" y="104" width="236" height="160" rx="10" fill="${c[2]}" opacity=".35"/><g stroke="${c[2]}" stroke-width="7" fill="none" stroke-linejoin="round" opacity=".9"><path d="M110 150l36-24 36 24 36-24 36 24 36-24"/><path d="M110 200l36-24 36 24 36-24 36 24 36-24"/><path d="M110 250l36-24 36 24 36-24 36 24 36-24"/></g>`,
+  mirror:(c)=>`<path d="M132 268V172a68 68 0 0 1 136 0v96Z" fill="${c[2]}" opacity=".45"/><path d="M132 268V172a68 68 0 0 1 136 0v96" fill="none" stroke="${c[2]}" stroke-width="9"/>`,
+  curtain:(c)=>`<g fill="${c[2]}" opacity=".5">${[0,1,2,3,4].map(i=>`<path d="M${96+i*46} 84c14 60-14 120 0 192h26c-14-72 14-132 0-192Z"/>`).join('')}</g><rect x="84" y="74" width="236" height="12" rx="6" fill="${c[2]}" opacity=".85"/>`
+};
+function thumbSVG(item){
+  const c = TONES[item.cat], id = 'g' + (uid++);
+  return `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${item.title}">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="${c[0]}"/><stop offset="100%" stop-color="${c[1]}"/></linearGradient></defs>
+    <rect width="400" height="300" fill="url(#${id})"/>
+    <circle cx="336" cy="52" r="86" fill="#fff" opacity=".22"/>
+    ${M[item.motif](c)}
+  </svg>`;
+}
+
+/* ---------------- Données ---------------- */
+let ITEMS = [
+  {t:'Olivier en pot terre cuite', cat:'vegetal', env:'Extérieur', motif:'tree', d:'2026-09-02', res:'5472 × 3648', w:'14,2 Mo', k:['olivier','pot','méditerranéen','terrasse'], desc:"Olivier centenaire en pot de terre cuite vieillie, feuillage argenté. Prise de vue en lumière naturelle rasante de fin d'après-midi, fond neutre. Idéal pour habiller une terrasse ou une entrée de villa."},
+  {t:'Canapé scandinave 3 places', cat:'mobilier', env:'Intérieur', motif:'sofa', d:'2026-08-28', res:'6000 × 4000', w:'21,7 Mo', k:['canapé','tissu','chêne','salon'], desc:"Canapé trois places, assise en tissu bouclé écru et piètement chêne massif. Vue trois-quarts sur fond clair, ombre portée douce. Utilisé comme référence de matière pour les intérieurs contemporains."},
+  {t:'Taille-haie thermique', cat:'outillage', env:'Extérieur', motif:'hedger', d:'2026-08-21', res:'4000 × 2667', w:'9,4 Mo', k:['taille-haie','entretien','jardin','moteur'], desc:"Taille-haie thermique 60 cm, carter rouge et lame nue. Détail des poignées et du capot moteur exploitable en gros plan pour les scènes d'atelier ou de remise de jardin."},
+  {t:'Carrelage terrasse grès cérame', cat:'materiaux', env:'Extérieur', motif:'tile', d:'2026-08-19', res:'8192 × 8192', w:'38,5 Mo', k:['carrelage','grès','sol','texture','seamless'], desc:"Texture de grès cérame effet pierre, format 60×60, joints gris clair. Planche seamless calibrée, prête pour un mapping UV sans raccord visible."},
+  {t:'Monstera deliciosa', cat:'vegetal', env:'Intérieur', motif:'leaf', d:'2026-08-14', res:'4480 × 6720', w:'18,1 Mo', k:['monstera','plante verte','feuillage','intérieur'], desc:"Monstera adulte en pot céramique blanc, six feuilles matures bien découpées. Détourage propre disponible en calque alpha dans le fichier source."},
+  {t:'Fauteuil cannage rotin', cat:'mobilier', env:'Intérieur', motif:'chair', d:'2026-08-11', res:'5000 × 3333', w:'12,9 Mo', k:['fauteuil','rotin','cannage','vintage'], desc:"Fauteuil en rotin naturel avec dossier cannage. Deux angles disponibles dans le dossier source, éclairage diffus pour conserver le détail du tressage."},
+  {t:'Parquet chêne huilé', cat:'materiaux', env:'Intérieur', motif:'plank', d:'2026-08-05', res:'6144 × 6144', w:'27,3 Mo', k:['parquet','chêne','bois','sol','texture'], desc:"Parquet chêne massif pose à l'anglaise, finition huilée mate. Texture raccordable avec cartes normal et roughness associées."},
+  {t:'Suspension abat-jour lin', cat:'deco', env:'Intérieur', motif:'lamp', d:'2026-07-30', res:'4000 × 5000', w:'11,5 Mo', k:['luminaire','suspension','lin','laiton'], desc:"Suspension conique en lin naturel, douille laiton brossé et câble textile. Photographiée allumée et éteinte pour caler la température de lumière en rendu."},
+  {t:'Hortensia bleu en massif', cat:'vegetal', env:'Extérieur', motif:'flower', d:'2026-07-24', res:'5472 × 3648', w:'15,8 Mo', k:['hortensia','fleur','massif','bleu'], desc:"Massif d'hortensias en pleine floraison, camaïeu de bleus et mauves. Cadrage large permettant un détourage par groupes de fleurs."},
+  {t:'Tondeuse robot autonome', cat:'outillage', env:'Extérieur', motif:'mower', d:'2026-07-18', res:'4500 × 3000', w:'10,2 Mo', k:['tondeuse','robot','pelouse','technique'], desc:"Robot tondeuse posé sur gazon dense, coque gris anthracite. Vue de trois-quarts avant, utile pour les scènes de jardin contemporain."},
+  {t:'Salon de jardin teck', cat:'mobilier', env:'Extérieur', motif:'table', d:'2026-07-12', res:'6000 × 4000', w:'23,4 Mo', k:['teck','salon','jardin','table'], desc:"Table basse et assises en teck massif non traité, coussins toile écrue. Série complète de six visuels disponible dans le dossier partagé."},
+  {t:'Gravier marbre blanc', cat:'materiaux', env:'Extérieur', motif:'gravel', d:'2026-07-08', res:'8192 × 8192', w:'41,0 Mo', k:['gravier','marbre','allée','texture','minéral'], desc:"Gravier de marbre concassé calibre 8/16, blanc légèrement veiné. Capture zénithale en lumière diffuse, sans ombre directionnelle."},
+  {t:'Tapis berbère laine', cat:'deco', env:'Intérieur', motif:'rug', d:'2026-07-02', res:'5000 × 5000', w:'19,6 Mo', k:['tapis','laine','berbère','motif'], desc:"Tapis berbère laine écrue à losanges noirs, tissage épais. Prise de vue à plat, correction de perspective déjà appliquée."},
+  {t:'Sécateur professionnel', cat:'outillage', env:'Extérieur', motif:'shear', d:'2026-06-27', res:'4000 × 2667', w:'8,1 Mo', k:['sécateur','taille','outil','acier'], desc:"Sécateur forgé à lame acier trempé et poignées rouges. Fond blanc studio, ombre douce, exploitable en pictogramme ou en détail de scène."},
+  {t:'Lavande en jardinière', cat:'vegetal', env:'Extérieur', motif:'spike', d:'2026-06-20', res:'5472 × 3648', w:'16,4 Mo', k:['lavande','jardinière','provence','violet'], desc:"Lavandin en jardinière zinc, épis en pleine floraison. Trois hauteurs de plants dans la série pour varier les alignements en rendu."},
+  {t:'Table basse travertin', cat:'mobilier', env:'Intérieur', motif:'table', d:'2026-06-15', res:'5600 × 3733', w:'17,2 Mo', k:['travertin','table basse','pierre','minéral'], desc:"Table basse ronde en travertin beige, piètement cylindrique plein. Détail de la porosité de la pierre visible à 100 %."},
+  {t:'Miroir arqué laiton', cat:'deco', env:'Intérieur', motif:'mirror', d:'2026-06-09', res:'4000 × 6000', w:'13,3 Mo', k:['miroir','laiton','arche','mur'], desc:"Miroir mural arqué, cadre fin laiton doré. Réflexion neutralisée en post-production pour faciliter l'intégration en scène."},
+  {t:'Enduit béton ciré', cat:'materiaux', env:'Intérieur', motif:'blotch', d:'2026-06-03', res:'8192 × 8192', w:'35,8 Mo', k:['béton ciré','enduit','mur','texture'], desc:"Enduit béton ciré gris moyen, nuances de taloche irrégulières. Version claire et version foncée dans le même dossier."},
+  {t:'Arrosoir zinc vieilli', cat:'outillage', env:'Extérieur', motif:'can', d:'2026-05-29', res:'4000 × 5000', w:'10,9 Mo', k:['arrosoir','zinc','jardinage','accessoire'], desc:"Arrosoir en zinc patiné avec pomme d'arrosage amovible. Objet d'accompagnement fréquemment utilisé dans les scènes de potager."},
+  {t:'Voilage lin écru', cat:'deco', env:'Intérieur', motif:'curtain', d:'2026-05-22', res:'4500 × 6000', w:'14,7 Mo', k:['voilage','lin','rideau','fenêtre'], desc:"Voilage en lin lavé écru, tombé souple devant une fenêtre plein sud. Contre-jour maîtrisé, utile pour caler la translucidité des tissus."}
+].map((o,i)=>({
+  id:i+1, title:o.t, cat:o.cat, env:o.env, motif:o.motif, date:o.d,
+  res:o.res, weight:o.w, keywords:o.k, desc:o.desc,
+  path:`/Studio3D/Mediatheque/${o.cat}/${o.t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_')}_01.jpg`,
+  author: 'Yastene Aissat'
+}));
+
+/* ---------------- État ---------------- */
+const state = { role:'admin', cats:new Set(), env:'all', q:'', kw:null };
+
+function login(role){
+  state.role = role;
+  const isAdmin = role === 'admin';
+  document.getElementById('userName').textContent = 'cecile';
+  document.getElementById('userRole').textContent = isAdmin ? 'Admin · Contributeur' : 'Graphiste · Lecteur';
+  document.getElementById('avatar').textContent = isAdmin ? 'AL' : 'CR';
+  document.getElementById('avatar').className = 'h-8 w-8 rounded-full grid place-items-center text-[11px] font-semibold ' +
+    (isAdmin ? 'bg-accent text-white' : 'bg-surface2 border border-line text-ink');
+  document.getElementById('userRole').className = 'text-[10px] font-medium ' + (isAdmin ? 'text-accent' : 'text-muted');
+  document.getElementById('importBtn').classList.toggle('hidden', !isAdmin);
+  document.getElementById('importBtn').classList.toggle('sm:inline-flex', isAdmin);
+
+  document.getElementById('auth').classList.add('hidden');
+  const app = document.getElementById('app');
+  app.classList.remove('hidden'); app.classList.add('flex','fade-in');
+  render();
+  toast(isAdmin ? 'Connecté en Admin — import et édition activés' : 'Connecté en lecture seule — import désactivé');
+}
+
+/* ---------------- Filtres ---------------- */
+function buildFilters(){
+  const box = document.getElementById('catFilters');
+  box.innerHTML = Object.entries(CATS).map(([k,c])=>{
+    const on = state.cats.has(k);
+    const n = countFor(k);
+    return `<button onclick="toggleCat('${k}')" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg border text-left transition ${on?'border-transparent':'border-transparent hover:bg-surface2'}"
+      style="${on?`background:${c.color}1f;border-color:${c.color}59;`:''}">
+      <span class="h-2.5 w-2.5 rounded-full shrink-0" style="background:${c.color}"></span>
+      <span class="flex-1 text-[13px] font-medium truncate ${on?'':'text-ink'}">${c.label}</span>
+      <span class="text-[11px] tabular-nums ${on?'':'text-muted'}" ${on?`style="color:${c.color}"`:''}>${n}</span>
+    </button>`;
+  }).join('');
+
+  document.querySelectorAll('.env-btn').forEach(b=>{
+    const on = b.dataset.env === state.env;
+    b.className = 'env-btn text-xs py-1.5 rounded-md font-medium transition ' +
+      (on ? 'bg-surface text-ink shadow-sm border border-line' : 'text-muted hover:text-ink');
+  });
+
+  const tags = [...new Set(ITEMS.flatMap(i=>i.keywords))].slice(0,14);
+  document.getElementById('tagCloud').innerHTML = tags.map(t=>
+    `<button onclick="setKeyword('${t}')" class="px-2 py-1 rounded-md border text-[11px] transition ${state.kw===t?'bg-accentSoft border-accent text-accent font-medium':'border-line text-muted hover:text-ink hover:border-ink/25'}">${t}</button>`
+  ).join('');
+}
+function countFor(cat){
+  return ITEMS.filter(i => i.cat===cat && matchEnv(i) && matchQuery(i) && matchKw(i)).length;
+}
+const matchEnv = i => state.env==='all' || i.env===state.env;
+const matchKw  = i => !state.kw || i.keywords.includes(state.kw);
+const matchQuery = i => {
+  const q = state.q.trim().toLowerCase();
+  if(!q) return true;
+  return (i.title + ' ' + i.keywords.join(' ') + ' ' + CATS[i.cat].label + ' ' + i.desc).toLowerCase().includes(q);
+};
+function toggleCat(k){ state.cats.has(k) ? state.cats.delete(k) : state.cats.add(k); render(); }
+function setEnv(e){ state.env = e; render(); }
+function setKeyword(t){ state.kw = state.kw===t ? null : t; render(); }
+function resetFilters(){ state.cats.clear(); state.env='all'; state.kw=null; state.q=''; document.getElementById('search').value=''; render(); }
+function clearSearch(){ state.q=''; document.getElementById('search').value=''; render(); }
+document.getElementById('search').addEventListener('input', e=>{ state.q = e.target.value; render(); });
+
+function toggleMobileFilters(){
+  const s = document.getElementById('sidebar');
+  const open = s.classList.contains('hidden');
+  s.classList.toggle('hidden', !open);
+  s.classList.toggle('flex', open);
+  s.classList.toggle('fixed', open);
+  s.classList.toggle('inset-x-0', open);
+  s.classList.toggle('bottom-0', open);
+  s.classList.toggle('top-16', open);
+  s.classList.toggle('z-40', open);
+  s.classList.toggle('w-full', open);
+}
+
+/* ---------------- Rendu ---------------- */
+const fmtDate = d => new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+
+function visible(){
+  let list = ITEMS.filter(i => (state.cats.size===0 || state.cats.has(i.cat)) && matchEnv(i) && matchQuery(i) && matchKw(i));
+  const s = document.getElementById('sort').value;
+  list.sort((a,b)=> s==='az' ? a.title.localeCompare(b.title,'fr') : s==='old' ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date));
+  return list;
+}
+function render(){
+  buildFilters();
+  const list = visible();
+  document.getElementById('catCount').textContent = ITEMS.length + ' visuels';
+  document.getElementById('resultInfo').textContent =
+    `${list.length} visuel${list.length>1?'s':''} affiché${list.length>1?'s':''} sur ${ITEMS.length}`;
+
+  const chips = [];
+  state.cats.forEach(k=>chips.push(`<button onclick="toggleCat('${k}')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium" style="background:${CATS[k].color}1f;color:${CATS[k].color}">${CATS[k].label} ✕</button>`));
+  if(state.env!=='all') chips.push(`<button onclick="setEnv('all')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-surface2 border border-line">${state.env} ✕</button>`);
+  if(state.kw) chips.push(`<button onclick="setKeyword('${state.kw}')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-surface2 border border-line">#${state.kw} ✕</button>`);
+  if(state.q) chips.push(`<button onclick="clearSearch()" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-surface2 border border-line">« ${state.q} » ✕</button>`);
+  document.getElementById('activeChips').innerHTML = chips.join('');
+
+  document.getElementById('clearSearch').classList.toggle('hidden', !state.q);
+  document.getElementById('empty').classList.toggle('hidden', list.length>0);
+
+  document.getElementById('grid').innerHTML = list.map(i=>`
+    <article onclick="openDetail(${i.id})" class="card group cursor-pointer bg-surface border border-line rounded-xl overflow-hidden hover:shadow-soft hover:border-ink/15 transition">
+      <div class="thumb relative aspect-[4/3] overflow-hidden bg-surface2">
+        ${thumbSVG(i)}
+        <span class="absolute top-2.5 left-2.5 px-2 py-1 rounded-md text-[10px] font-semibold backdrop-blur"
+              style="background:${CATS[i.cat].color}e6;color:#fff">${CATS[i.cat].label}</span>
+        <button onclick="event.stopPropagation();download('${i.title.replace(/'/g,"\\'")}')"
+                class="absolute top-2 right-2 h-8 w-8 rounded-lg bg-white/90 text-[#1a1c19] grid place-items-center opacity-0 group-hover:opacity-100 transition hover:bg-white" title="Télécharger">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12m0 0 4-4m-4 4-4-4"/><path d="M5 20h14"/></svg>
+        </button>
+      </div>
+      <div class="p-3.5">
+        <h3 class="text-[13.5px] font-medium leading-snug truncate">${i.title}</h3>
+        <div class="flex items-center justify-between mt-2 text-[11px] text-muted">
+          <span>${fmtDate(i.date)}</span>
+          <span class="inline-flex items-center gap-1">
+            <span class="h-1.5 w-1.5 rounded-full bg-muted/60"></span>${i.env}
+          </span>
+        </div>
+      </div>
+    </article>`).join('');
+}
+
+/* ---------------- Détail ---------------- */
+function openDetail(id){
+  const i = ITEMS.find(x=>x.id===id);
+  document.getElementById('drawerContent').innerHTML = `
+    <div class="relative">
+      <div class="aspect-[4/3] bg-surface2 overflow-hidden">${thumbSVG(i)}</div>
+      <button onclick="closeDrawer()" class="absolute top-3 right-3 h-9 w-9 rounded-lg bg-white/90 text-[#1a1c19] grid place-items-center hover:bg-white">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-6 space-y-6">
+      <div>
+        <span class="inline-block px-2 py-1 rounded-md text-[10px] font-semibold mb-3" style="background:${CATS[i.cat].color}1f;color:${CATS[i.cat].color}">${CATS[i.cat].label}</span>
+        <h2 class="text-lg font-semibold tracking-tight leading-snug">${i.title}</h2>
+        <p class="text-sm text-muted leading-relaxed mt-2">${i.desc}</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-px bg-line border border-line rounded-xl overflow-hidden">
+        ${[['Environnement',i.env],['Résolution',i.res],['Poids',i.weight],['Ajouté le',fmtDate(i.date)],['Format','JPEG · sRGB'],['Auteur',i.author]]
+          .map(([k,v])=>`<div class="bg-surface p-3"><div class="text-[10px] uppercase tracking-wider text-muted">${k}</div><div class="text-[13px] font-medium mt-0.5">${v}</div></div>`).join('')}
+      </div>
+
+      <div>
+        <div class="text-[11px] font-semibold uppercase tracking-wider text-muted mb-2">Mots-clés</div>
+        <div class="flex flex-wrap gap-1.5">
+          ${i.keywords.map(k=>`<span class="px-2 py-1 rounded-md bg-surface2 border border-line text-[11px] text-muted">${k}</span>`).join('')}
+        </div>
+      </div>
+
+      <div>
+        <div class="text-[11px] font-semibold uppercase tracking-wider text-muted mb-2">Chemin d'accès serveur</div>
+        <div class="flex items-stretch gap-2">
+          <code class="flex-1 min-w-0 bg-surface2 border border-line rounded-lg px-3 py-2.5 text-[11px] overflow-x-auto whitespace-nowrap">${i.path}</code>
+          <button onclick="copyPath('${i.path}')" class="shrink-0 border border-line rounded-lg px-3 text-xs font-medium hover:bg-surface2 transition">Copier</button>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-1">
+        <button onclick="download('${i.title.replace(/'/g,"\\'")}')" class="flex-1 bg-accent text-white rounded-lg py-2.5 text-sm font-medium hover:opacity-90">Télécharger le fichier</button>
+        ${state.role==='admin'
+          ? `<button onclick="toast('Ouverture de l\\'éditeur de métadonnées')" class="border border-line rounded-lg px-4 text-sm font-medium hover:bg-surface2">Éditer</button>`
+          : `<button disabled title="Réservé aux contributeurs" class="border border-line rounded-lg px-4 text-sm font-medium opacity-40 cursor-not-allowed">Éditer</button>`}
+      </div>
+    </div>`;
+  const wrap = document.getElementById('drawerWrap');
+  wrap.classList.remove('hidden');
+  requestAnimationFrame(()=>document.getElementById('drawer').classList.remove('translate-x-full'));
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.add('translate-x-full');
+  setTimeout(()=>document.getElementById('drawerWrap').classList.add('hidden'), 260);
+}
+function copyPath(p){
+  try { navigator.clipboard.writeText(p); } catch(e){}
+  toast('Chemin d\'accès copié dans le presse-papiers');
+}
+function download(t){ toast('Téléchargement simulé : ' + t); }
+
+/* ---------------- Import ---------------- */
+let rows = [], rid = 0;
+const FAKE = [
+  ['buis_boule_topiaire.jpg','6,8 Mo','shrub'],
+  ['etagere_metal_noir.jpg','9,1 Mo','shelf'],
+  ['dalle_pierre_bleue.jpg','24,6 Mo','tile'],
+  ['fougere_nephrolepis.jpg','11,3 Mo','leaf'],
+  ['lampadaire_arc_laiton.jpg','8,7 Mo','lamp'],
+  ['brouette_acier_galva.jpg','7,2 Mo','can']
+];
+function openImport(){
+  if(state.role!=='admin'){ toast('Action réservée aux contributeurs'); return; }
+  document.getElementById('bulkCat').innerHTML = Object.entries(CATS).map(([k,c])=>`<option value="${k}">${c.label}</option>`).join('');
+  document.getElementById('importWrap').classList.remove('hidden');
+  document.getElementById('importWrap').classList.add('block');
+}
+function closeImport(){ document.getElementById('importWrap').classList.add('hidden'); rows=[]; renderRows(); }
+
+const dz = document.getElementById('dropzone');
+dz.addEventListener('click', ()=>addFakeFiles(3));
+['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev, e=>{ e.preventDefault(); dz.classList.add('border-accent','bg-accentSoft'); }));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev, e=>{ e.preventDefault(); dz.classList.remove('border-accent','bg-accentSoft'); }));
+dz.addEventListener('drop', e=>{ addFakeFiles((e.dataTransfer && e.dataTransfer.files.length) || 4); });
+
+function addFakeFiles(n){
+  for(let i=0;i<Math.min(n,6);i++){
+    const f = FAKE[(rows.length) % FAKE.length];
+    rows.push({ id:++rid, name:f[0], size:f[1], motif:f[2], cat:'vegetal', env:'Extérieur', sel:true });
+  }
+  renderRows();
+}
+function renderRows(){
+  const has = rows.length>0;
+  document.getElementById('importPanel').classList.toggle('hidden', !has);
+  document.getElementById('importEmpty').classList.toggle('hidden', has);
+  document.getElementById('confirmImport').disabled = !has;
+  document.getElementById('confirmImport').textContent = has ? `Importer ${rows.length} fichier${rows.length>1?'s':''}` : 'Importer';
+  const sel = rows.filter(r=>r.sel).length;
+  document.getElementById('selCount').textContent = `${sel} sélectionné${sel>1?'s':''}`;
+  document.getElementById('selectAll').checked = has && sel===rows.length;
+
+  document.getElementById('importRows').innerHTML = rows.map(r=>`
+    <tr class="border-t border-line">
+      <td class="py-2 text-center"><input type="checkbox" ${r.sel?'checked':''} onchange="toggleRow(${r.id},this.checked)" class="accent-[var(--accent)] h-3.5 w-3.5"></td>
+      <td class="py-2">
+        <div class="flex items-center gap-2.5">
+          <div class="h-9 w-12 rounded-md overflow-hidden bg-surface2 shrink-0">${thumbSVG({cat:r.cat,motif:r.motif,title:r.name})}</div>
+          <span class="text-[12.5px] truncate">${r.name}</span>
+        </div>
+      </td>
+      <td class="py-2 hidden sm:table-cell">
+        <span class="px-2 py-1 rounded-md text-[10px] font-semibold" style="background:${CATS[r.cat].color}1f;color:${CATS[r.cat].color}">${CATS[r.cat].label}</span>
+      </td>
+      <td class="py-2 hidden sm:table-cell text-[12px] text-muted">${r.env}</td>
+      <td class="py-2 pr-3 text-right text-[12px] text-muted tabular-nums">${r.size}</td>
+    </tr>`).join('');
+}
+function toggleRow(id,v){ const r = rows.find(x=>x.id===id); if(r) r.sel=v; renderRows(); }
+function toggleAll(v){ rows.forEach(r=>r.sel=v); renderRows(); }
+function applyBulk(){
+  const cat = document.getElementById('bulkCat').value;
+  const env = document.getElementById('bulkEnv').value;
+  const n = rows.filter(r=>r.sel).length;
+  if(!n){ toast('Sélectionnez au moins un fichier'); return; }
+  rows.forEach(r=>{ if(r.sel){ r.cat=cat; r.env=env; } });
+  renderRows();
+  toast(`${n} fichier${n>1?'s':''} qualifié${n>1?'s':''} « ${CATS[cat].label} »`);
+}
+function confirmImport(){
+  const today = new Date().toISOString().slice(0,10);
+  rows.forEach(r=>{
+    ITEMS.unshift({
+      id: Math.max(...ITEMS.map(i=>i.id))+1,
+      title: r.name.replace(/\.[a-z]+$/,'').replace(/_/g,' ').replace(/^./,c=>c.toUpperCase()),
+      cat:r.cat, env:r.env, motif:r.motif, date:today,
+      res:'5472 × 3648', weight:r.size, keywords:['import','à qualifier'],
+      desc:"Visuel fraîchement importé. Description et mots-clés à compléter par un contributeur avant validation en bibliothèque.",
+      path:`/Studio3D/Mediatheque/${r.cat}/${r.name}`, author:'Yastene Aissat'
+    });
+  });
+  const n = rows.length;
+  closeImport();
+  render();
+  toast(`${n} visuel${n>1?'s':''} ajouté${n>1?'s':''} à la médiathèque`);
+}
+
+/* ---------------- Toast ---------------- */
+function toast(msg){
+  const el = document.createElement('div');
+  el.className = 'bg-ink text-bg px-4 py-2.5 rounded-lg text-[13px] font-medium shadow-soft fade-in';
+  el.style.background = 'var(--text)'; el.style.color = 'var(--bg)';
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(()=>{ el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 2600);
+}
+
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape'){ closeDrawer(); closeImport(); }
+  if(e.key === '/' && document.activeElement.tagName !== 'INPUT'){ e.preventDefault(); document.getElementById('search').focus(); }
+});
+renderRows();
+</script>
+</body>
+</html>
